@@ -6,6 +6,7 @@ import javax.microedition.khronos.opengles.GL10;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,7 +80,7 @@ class GameThread extends Thread {
     long sleepTime = 0;
 
     while (mRun) {
-      Log.v(TAG, "run loop");
+      //Log.v(TAG, "run loop");
       // Update game state.
       mPongSurfaceView.updateGameState();
       // Render.
@@ -102,7 +103,7 @@ class GameThread extends Thread {
         Log.e(TAG, "Running behind!");
       }
     }
-    Log.v(TAG, "FINISHED run loop");
+    //Log.v(TAG, "FINISHED run loop");
   }
 
   public void setRunning(boolean running) {
@@ -127,11 +128,20 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
     mThread = new GameThread(this);
     mThread.start();
+
   }
 
   public void updateGameState() {
-    Log.v(TAG, "onTick");
-    // mRenderer.mAngleX += 1;
+    //Log.v(TAG, "updateGameState");
+    // For now, just animate the paddles back and forth.
+
+    final float PADDLE_SPEED = 0.01f;
+    
+    for (Paddle paddle : mRenderer.getPaddles()) {
+      paddle.move(mSpeedX);
+      mSpeedX = 0.0f;
+    }
+
     requestRender();
   }
 
@@ -146,23 +156,35 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
   @Override public boolean onTouchEvent(MotionEvent e) {
     float x = e.getX();
     float y = e.getY();
-    //switch (e.getAction()) {
-    //case MotionEvent.ACTION_MOVE:
-    //  float dx = x - mPreviousX;
-    //  float dy = y - mPreviousY;
-    //  mRenderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
-    //  mRenderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
-    //  requestRender();
-    //}
-    //mPreviousX = x;
+    Log.v(TAG, String.format("onTouchEvent: (%f, %f)", x, y));
+    switch (e.getAction()) {
+    case MotionEvent.ACTION_DOWN:
+      // If we're putting our hand down, we're at zero speed AND zero previous position.
+      mSpeedX    = 0.0f;
+    case MotionEvent.ACTION_UP:
+      // If we're raising our finger, we want to keep speed, but not last position.
+      mPreviousX = 0.0f;
+      break;
+    case MotionEvent.ACTION_MOVE:
+      float dx = x - mPreviousX;
+      mSpeedX = dx * TOUCH_SCALE_FACTOR;
+      Log.v(TAG, String.format("DX: %f. Speed: %f", dx, mSpeedX));
+      //mRenderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
+
+      //float dy = y - mPreviousY;
+      //mRenderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
+      //requestRender();
+      break;
+    }
+    mPreviousX = x;
     //mPreviousY = y;
     return true;
   }
 
   private class PongRenderer implements GLSurfaceView.Renderer {
     public PongRenderer() {
-      mPaddles[0] = new Paddle(Player.HUMAN, new Point(10, 210));
-      mPaddles[1] = new Paddle(Player.COMPUTER, new Point(10, 10));
+      mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f,  1.0f));
+      mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f, -1.0f));
     }
 
     public void onDrawFrame(GL10 gl) {
@@ -183,14 +205,15 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
         gl.glLoadIdentity();
 
         // Position the paddle based on its current location.
-        Point location = paddle.getLocation();
+        PointF location = paddle.getLocation();
 
-        if (paddle.getPlayer() == Player.COMPUTER) {
-          gl.glTranslatef(0.0f, 1.0f, -3.0f);
-        } else {
-          gl.glTranslatef(0.0f, -1.0f, -3.0f);
-        }
-        //gl.glTranslatef(location.x, location.y, -3.0f);
+        //if (paddle.getPlayer() == Player.COMPUTER) {
+        //  gl.glTranslatef(1.0f, 2.0f, -3.0f);
+        //} else {
+        //  gl.glTranslatef(-1.0f, -2.0f, -3.0f);
+        //}
+
+        gl.glTranslatef(location.x, location.y, -3.0f);
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
@@ -237,13 +260,23 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
     }
 
     private Paddle[] mPaddles = new Paddle[2];
+
+    public Paddle[] getPaddles() {
+      return mPaddles;
+    }
   }
 
 
-  private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+  //private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+  private final float TOUCH_SCALE_FACTOR = 180.0f / (320 * 50);
   private final float TRACKBALL_SCALE_FACTOR = 36.0f;
 
   private PongRenderer mRenderer;
+  private float mPreviousX;
+  //private float mPreviousY;
+  
+  private float mSpeedX;
+  //private float mSpeedY;
 }
 
 /**
