@@ -137,10 +137,10 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
     final float PADDLE_SPEED = 0.01f;
     
-    for (Paddle paddle : mRenderer.getPaddles()) {
-      paddle.move(mSpeedX);
-      mSpeedX = 0.0f;
-    }
+    // Move human paddle.
+    Paddle human = mRenderer.getPaddles()[0];
+    human.move(mSpeedX);
+    mSpeedX = 0.0f;
 
     requestRender();
   }
@@ -183,8 +183,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
   private class PongRenderer implements GLSurfaceView.Renderer {
     public PongRenderer() {
-      mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f,  1.0f));
-      mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f, -1.0f));
+      mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f, -1.0f));
+      mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  1.0f));
     }
 
     public void onDrawFrame(GL10 gl) {
@@ -212,6 +212,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
         //} else {
         //  gl.glTranslatef(-1.0f, -2.0f, -3.0f);
         //}
+
+        //Log.v(TAG, String.format("Rendering paddle: %s at (%f, %f)", paddle.getPlayer(), location.x, location.y));
 
         gl.glTranslatef(location.x, location.y, -3.0f);
 
