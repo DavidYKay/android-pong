@@ -137,10 +137,14 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
     final float PADDLE_SPEED = 0.01f;
     
+
     // Move human paddle.
     Paddle human = mRenderer.getPaddles()[0];
     human.move(mSpeedX);
     mSpeedX = 0.0f;
+    
+    // Move computer paddle.
+    Paddle computer = mRenderer.getPaddles()[1];
 
     requestRender();
   }
@@ -187,6 +191,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  1.0f));
     }
 
+    private static final float ZOOM_FACTOR = -10.0f;
+
     public void onDrawFrame(GL10 gl) {
       /*
        * Usually, the first thing one might want to do is to clear
@@ -201,27 +207,22 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
        */
 
       gl.glMatrixMode(GL10.GL_MODELVIEW);
+      // Save current matrix for later use.
+      gl.glPushMatrix();
       for (Paddle paddle : mPaddles) {
         gl.glLoadIdentity();
 
         // Position the paddle based on its current location.
         PointF location = paddle.getLocation();
 
-        //if (paddle.getPlayer() == Player.COMPUTER) {
-        //  gl.glTranslatef(1.0f, 2.0f, -3.0f);
-        //} else {
-        //  gl.glTranslatef(-1.0f, -2.0f, -3.0f);
-        //}
-
-        //Log.v(TAG, String.format("Rendering paddle: %s at (%f, %f)", paddle.getPlayer(), location.x, location.y));
-
-        gl.glTranslatef(location.x, location.y, -3.0f);
+        gl.glTranslatef(location.x, location.y, ZOOM_FACTOR);
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
         paddle.draw(gl);
       }
+      gl.glPopMatrix();
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {

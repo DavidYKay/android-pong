@@ -6,19 +6,24 @@ import android.graphics.PointF;
 
 public class Paddle {
 
-  private static final PointF MAX_LOCATION = new PointF(2.0f, 1.0f);
-  private static final PointF MIN_LOCATION = new PointF(-2.0f, -1.0f);
+  private static final float MAX_X =  5.0f;
+  private static final float MIN_X = -5.0f;
+  private static final float MAX_Y =  1.0f;
+  private static final float MIN_Y = -1.0f;
+
+  private static final PointF MAX_LOCATION = new PointF(MAX_X, MAX_Y);
+  private static final PointF MIN_LOCATION = new PointF(MIN_X, MIN_Y);
 
   private Player mPlayer;
   private PointF mLocation;
   
   //TODO Remove this and handle rendering ourselves.
-  private Cube mCube;
+  private Rectangle mRectangle;
 
   public Paddle(Player player, PointF location) {
     mPlayer = player;
     mLocation = location;
-    mCube = new Cube();
+    mRectangle = new Rectangle();
   }
 
   /**
@@ -34,12 +39,6 @@ public class Paddle {
     if (mLocation.x > MAX_LOCATION.x) {
       mLocation.x = MAX_LOCATION.x;
     }
-    //if (mLocation.y < MIN_LOCATION.y) {
-    //  mLocation.y = MIN_LOCATION.y;
-    //}
-    //if (mLocation.y > MAX_LOCATION.y) {
-    //  mLocation.y = MAX_LOCATION.y;
-    //}
 
   }
 
@@ -52,7 +51,7 @@ public class Paddle {
 
   public void draw(GL10 gl) {
     // TODO Implement this ourselves.
-    mCube.draw(gl);
+    mRectangle.draw(gl);
   }
 
 }
