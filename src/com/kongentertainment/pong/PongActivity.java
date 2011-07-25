@@ -124,8 +124,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
     public static final PointF ORIGIN = new PointF(0.0f, 0.0f);
     public static final float MAX_X =  5.0f;
     public static final float MIN_X = -5.0f;
-    public static final float MAX_Y =  1.0f;
-    public static final float MIN_Y = -1.0f;
+    public static final float MAX_Y =  8.0f;
+    public static final float MIN_Y = -8.0f;
     public static final PointF MAX_LOCATION = new PointF(MAX_X, MAX_Y);
     public static final PointF MIN_LOCATION = new PointF(MIN_X, MIN_Y);
 
@@ -133,7 +133,7 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
   private Thread mThread;
 
-  private PongBall mBall = new PongBall();
+  private PongBall mBall;
   private Paddle[] mPaddles = new Paddle[2];
 
   public PongSurfaceView(Context context) {
@@ -141,6 +141,7 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
     // Init model.
     mBall = new PongBall();
+    mBall.hit(0.5f, 0.5f);
     mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f, -1.0f));
     mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  1.0f));
 

@@ -50,6 +50,7 @@ public class PongBall extends PongObject {
   }
 
   public void draw(GL10 gl) {
+    gl.glScalef(0.5f, 0.5f, 0.5f);
     // TODO Remember to scale down the model.
     mCube.draw(gl);
   }
