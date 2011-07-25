@@ -118,6 +118,18 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
   private static final String TAG = "PongSurfaceView";
 
+  public static class Rules {
+
+    public static final PointF ORIGIN = new PointF(0.0f, 0.0f);
+    public static final float MAX_X =  5.0f;
+    public static final float MIN_X = -5.0f;
+    public static final float MAX_Y =  1.0f;
+    public static final float MIN_Y = -1.0f;
+    public static final PointF MAX_LOCATION = new PointF(MAX_X, MAX_Y);
+    public static final PointF MIN_LOCATION = new PointF(MIN_X, MIN_Y);
+
+  }
+
   private Thread mThread;
 
   public PongSurfaceView(Context context) {
@@ -135,8 +147,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
     //Log.v(TAG, "updateGameState");
     // For now, just animate the paddles back and forth.
 
-    final float PADDLE_SPEED = 0.01f;
-    
+    final float PADDLE_SPEED = 0.1f;
+    final float DIST_THRESHOLD = 0.04f;
 
     // Move human paddle.
     Paddle human = mRenderer.getPaddles()[0];
@@ -145,6 +157,51 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
     
     // Move computer paddle.
     Paddle computer = mRenderer.getPaddles()[1];
+
+    // This logic makes the computer paddle chase the human.
+    // Its speed is limited by PADDLE_SPEED.
+    float delta = human.getLocation().x - computer.getLocation().x;
+    float speed = 0.0f;
+    if (
+        (delta > 0 && delta < 0 + DIST_THRESHOLD) || 
+        (delta < 0 && delta > 0 - DIST_THRESHOLD)
+    ) {
+      // NOP. We're close enough.
+      Log.v(TAG, String.format(
+            "Computer staying STILL. Delta: %f", delta));
+    } else {
+      // Looks like we're moving.
+      if (delta > 0.0f) {
+        speed = Math.min(
+            delta, PADDLE_SPEED);
+      } else {
+        speed = Math.max(
+            delta, -PADDLE_SPEED);
+        Log.v(TAG, String.format(
+            "Computer moving LEFT. Speed: %f", speed));
+      }
+      // Enact the move.
+      computer.move(speed);
+    }
+
+    // Resolve ball hits.
+
+    // Resolve ball-on-wall hits.
+    if (mBall.getLocation().x > Rules.MAX_X ||
+        mBall.getLocation().x < Rules.MIN_X
+    ) {
+      mBall.hit(-mBall.getVector().x,
+                 mBall.getVector().y);
+    }
+    if (mBall.getLocation().y > Rules.MAX_Y
+        mBall.getLocation().y < Rules.MIN_Y
+    ) {
+      mBall.hit(mBall.getVector().x,
+                -mBall.getVector().y);
+    }
+    
+    // Move the ball.
+    mBall.move();
 
     requestRender();
   }
@@ -255,13 +312,13 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT,
                 GL10.GL_FASTEST);
 
-
       gl.glClearColor(1,1,1,1);
       gl.glEnable(GL10.GL_CULL_FACE);
       gl.glShadeModel(GL10.GL_SMOOTH);
       gl.glEnable(GL10.GL_DEPTH_TEST);
     }
 
+    private PongBall mBall = new PongBall();
     private Paddle[] mPaddles = new Paddle[2];
 
     public Paddle[] getPaddles() {
@@ -269,17 +326,15 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
     }
   }
 
-
   //private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
   private final float TOUCH_SCALE_FACTOR = 180.0f / (320 * 50);
   private final float TRACKBALL_SCALE_FACTOR = 36.0f;
 
   private PongRenderer mRenderer;
+  /** Previous touch position. */
   private float mPreviousX;
-  //private float mPreviousY;
-  
+  /** Speed of the human touch. */
   private float mSpeedX;
-  //private float mSpeedY;
 }
 
 /**
