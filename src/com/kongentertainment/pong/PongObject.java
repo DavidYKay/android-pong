@@ -9,7 +9,7 @@ import android.graphics.PointF;
  * @author dk
  *
  */
-public abstract class PongObject {
+public abstract class PongObject implements Renderable {
 
   protected PointF mLocation;
 

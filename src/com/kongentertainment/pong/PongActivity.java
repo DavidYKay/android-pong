@@ -1,11 +1,12 @@
 package com.kongentertainment.pong;
 
+import java.util.ArrayList;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -132,12 +133,26 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
   private Thread mThread;
 
+  private PongBall mBall = new PongBall();
+  private Paddle[] mPaddles = new Paddle[2];
+
   public PongSurfaceView(Context context) {
     super(context);
+
+    // Init model.
+    mBall = new PongBall();
+    mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f, -1.0f));
+    mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  1.0f));
+
+    // Init renderer.
     mRenderer = new PongRenderer();
     setRenderer(mRenderer);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+    mRenderer.addRenderable(mPaddles[0]);
+    mRenderer.addRenderable(mPaddles[1]);
+    mRenderer.addRenderable(mBall);
 
+    // Init thread.
     mThread = new GameThread(this);
     mThread.start();
 
@@ -151,12 +166,12 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
     final float DIST_THRESHOLD = 0.04f;
 
     // Move human paddle.
-    Paddle human = mRenderer.getPaddles()[0];
+    Paddle human = mPaddles[0];
     human.move(mSpeedX);
     mSpeedX = 0.0f;
     
     // Move computer paddle.
-    Paddle computer = mRenderer.getPaddles()[1];
+    Paddle computer = mPaddles[1];
 
     // This logic makes the computer paddle chase the human.
     // Its speed is limited by PADDLE_SPEED.
@@ -193,7 +208,7 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       mBall.hit(-mBall.getVector().x,
                  mBall.getVector().y);
     }
-    if (mBall.getLocation().y > Rules.MAX_Y
+    if (mBall.getLocation().y > Rules.MAX_Y ||
         mBall.getLocation().y < Rules.MIN_Y
     ) {
       mBall.hit(mBall.getVector().x,
@@ -243,12 +258,21 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
   }
 
   private class PongRenderer implements GLSurfaceView.Renderer {
-    public PongRenderer() {
-      mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f, -1.0f));
-      mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  1.0f));
-    }
 
     private static final float ZOOM_FACTOR = -10.0f;
+
+    private ArrayList<Renderable> mRenderables = new ArrayList<Renderable>();
+    
+    public PongRenderer() {
+    }
+    
+    public boolean addRenderable(Renderable renderable) {
+      return mRenderables.add(renderable);
+    }
+    
+    public boolean Renderable(Renderable renderable) {
+      return mRenderables.remove(renderable);
+    }
 
     public void onDrawFrame(GL10 gl) {
       /*
@@ -266,18 +290,17 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       gl.glMatrixMode(GL10.GL_MODELVIEW);
       // Save current matrix for later use.
       gl.glPushMatrix();
-      for (Paddle paddle : mPaddles) {
+      for (Renderable renderable : mRenderables) {
         gl.glLoadIdentity();
 
         // Position the paddle based on its current location.
-        PointF location = paddle.getLocation();
-
+        PointF location = renderable.getLocation();
         gl.glTranslatef(location.x, location.y, ZOOM_FACTOR);
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
-        paddle.draw(gl);
+        renderable.draw(gl);
       }
       gl.glPopMatrix();
     }
@@ -318,12 +341,6 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       gl.glEnable(GL10.GL_DEPTH_TEST);
     }
 
-    private PongBall mBall = new PongBall();
-    private Paddle[] mPaddles = new Paddle[2];
-
-    public Paddle[] getPaddles() {
-      return mPaddles;
-    }
   }
 
   //private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
