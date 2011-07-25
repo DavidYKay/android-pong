@@ -18,7 +18,7 @@ public class PongBall extends PongObject {
   private PointF mVector;
 
   public PongBall() {
-    this(Rules.ORIGIN);
+    this(Rules.getOrigin());
   }
 
   public PongBall(PointF location) {
@@ -55,6 +55,10 @@ public class PongBall extends PongObject {
   public void move() {
     Log.v(TAG, "ball moving at speed: " +  mVector);
     mLocation.offset(mVector.x, mVector.y);
+  }
+  
+  public void teleport(PointF location) {
+    mLocation = location;
   }
   
   public PointF getVector() {

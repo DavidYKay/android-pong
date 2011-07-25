@@ -120,16 +120,20 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
   private static final String TAG = "PongSurfaceView";
 
   public static class Rules {
-    
+
     public static final float INITIAL_SPEED = 0.2f;
 
-    public static final PointF ORIGIN = new PointF(0.0f, 0.0f);
+    private static final PointF ORIGIN = new PointF(0.0f, 0.0f);
     public static final float MAX_X =  5.0f;
     public static final float MIN_X = -5.0f;
     public static final float MAX_Y =  8.0f;
     public static final float MIN_Y = -8.0f;
     public static final PointF MAX_LOCATION = new PointF(MAX_X, MAX_Y);
     public static final PointF MIN_LOCATION = new PointF(MIN_X, MIN_Y);
+
+    public static PointF getOrigin() {
+      return new PointF(ORIGIN.x, ORIGIN.y);
+    }
 
   }
 
@@ -193,6 +197,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       if (delta > 0.0f) {
         speed = Math.min(
             delta, PADDLE_SPEED);
+        Log.v(TAG, String.format(
+            "Computer moving RIGHT. Speed: %f", speed));
       } else {
         speed = Math.max(
             delta, -PADDLE_SPEED);
@@ -219,17 +225,25 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       mBall.hit(-mBall.getVector().x,
                  mBall.getVector().y);
     }
+
     if (mBall.getLocation().y > Rules.MAX_Y ||
         mBall.getLocation().y < Rules.MIN_Y
     ) {
-      mBall.hit(mBall.getVector().x,
-                -mBall.getVector().y);
-    }
-    
-    // Move the ball.
-    mBall.move();
+      Log.v(TAG, "Dead ball!");
+      // Ball is dead!
+      // Increment Score.
+      // Move ball back to start.
+      mBall.teleport(Rules.ORIGIN);
+      //mBall.teleport(new PointF(0.0f, 0.0f));
+      mBall.hit(Rules.INITIAL_SPEED, Rules.INITIAL_SPEED);
+      //mBall.hit(mBall.getVector().x, -mBall.getVector().y);
+      requestRender();
+    } else {
+      // Move the ball.
+      mBall.move();
 
-    requestRender();
+      requestRender();
+    }
   }
 
   @Override public boolean onTrackballEvent(MotionEvent e) {
