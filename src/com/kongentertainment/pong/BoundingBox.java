@@ -39,4 +39,24 @@ public class BoundingBox {
     return true ;
   }
 
+  public boolean isIncludedIn(BoundingBox other) {
+    return isIncludedIn(
+        other.minX,
+        other.minY,
+        other.maxX,
+        other.maxY
+    );
+  }
+
+  public boolean isIncludedIn(float x1, float y1, float x2, float y2) {
+    if(this.minX < x1 || this.maxX > x2)
+      return false;
+
+    if(this.minY < y1 || this.maxY > y2)
+      return false;
+
+    return true;
+  }
+
+
 }
