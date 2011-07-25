@@ -60,7 +60,7 @@ class GameThread extends Thread {
     mRun = true;
   }
 
-  static final int FRAMES_PER_SECOND = 25;
+  static final int FRAMES_PER_SECOND = 30;
   static final int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
 
   /**
@@ -120,6 +120,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
   private static final String TAG = "PongSurfaceView";
 
   public static class Rules {
+    
+    public static final float INITIAL_SPEED = 0.2f;
 
     public static final PointF ORIGIN = new PointF(0.0f, 0.0f);
     public static final float MAX_X =  5.0f;
@@ -141,9 +143,9 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
     // Init model.
     mBall = new PongBall();
-    mBall.hit(0.5f, 0.5f);
-    mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f, -1.0f));
-    mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  1.0f));
+    mBall.hit(Rules.INITIAL_SPEED, Rules.INITIAL_SPEED);
+    mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f, -7.0f));
+    mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  7.0f));
 
     // Init renderer.
     mRenderer = new PongRenderer();

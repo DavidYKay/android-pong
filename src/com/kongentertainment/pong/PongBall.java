@@ -11,6 +11,8 @@ public class PongBall extends PongObject {
  
   private static final String TAG = "PongBall";
   
+  private static final float SCALING_FACTOR = 0.3f;
+  
   private Cube mCube;
   private PointF mVector;
 
@@ -31,6 +33,7 @@ public class PongBall extends PongObject {
     mVector = new PointF(newX, newY);
 
     // TODO: Add collision prediction.
+
     // TODO: Add collision detection.
 
     //mVector.negate();
@@ -50,7 +53,7 @@ public class PongBall extends PongObject {
   }
 
   public void draw(GL10 gl) {
-    gl.glScalef(0.5f, 0.5f, 0.5f);
+    gl.glScalef(SCALING_FACTOR, SCALING_FACTOR, SCALING_FACTOR);
     // TODO Remember to scale down the model.
     mCube.draw(gl);
   }
