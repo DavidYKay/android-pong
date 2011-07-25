@@ -143,9 +143,9 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
     // Init model.
     mBall = new PongBall();
-    mBall.hit(Rules.INITIAL_SPEED, Rules.INITIAL_SPEED);
+    mBall.hit(Rules.INITIAL_SPEED, -Rules.INITIAL_SPEED);
     mPaddles[0] = new Paddle(Player.HUMAN    , new PointF(-1.0f, -7.0f));
-    mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(-1.0f,  7.0f));
+    mPaddles[1] = new Paddle(Player.COMPUTER , new PointF(Rules.MIN_X,  7.0f));
 
     // Init renderer.
     mRenderer = new PongRenderer();
@@ -178,7 +178,8 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
 
     // This logic makes the computer paddle chase the human.
     // Its speed is limited by PADDLE_SPEED.
-    float delta = human.getLocation().x - computer.getLocation().x;
+    //float delta = human.getLocation().x - computer.getLocation().x;
+    float delta = mBall.getLocation().x - computer.getLocation().x;
     float speed = 0.0f;
     if (
         (delta > 0 && delta < 0 + DIST_THRESHOLD) || 
