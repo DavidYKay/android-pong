@@ -202,7 +202,14 @@ class PongSurfaceView extends GLSurfaceView implements GameSurfaceView {
       computer.move(speed);
     }
 
-    // Resolve ball hits.
+    // Resolve ball-on-paddle hits.
+    BoundingBox ballBounds = mBall.getBoundingBox();
+    for (Paddle paddle : mPaddles) {
+      if (ballBounds.collides(paddle.getBoundingBox())) {
+        mBall.hit();
+        break;
+      }
+    }
 
     // Resolve ball-on-wall hits.
     if (mBall.getLocation().x > Rules.MAX_X ||

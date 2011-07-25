@@ -8,6 +8,8 @@ import android.graphics.PointF;
 
 public class Paddle extends PongObject {
 
+  private static final PointF DEFAULT_SIZE = new PointF(1.0f, 1.0f);
+
   private Player mPlayer;
   
   //TODO Remove this and handle rendering ourselves.
@@ -17,6 +19,7 @@ public class Paddle extends PongObject {
     mPlayer = player;
     mLocation = location;
     mRectangle = new Rectangle();
+    mSize = DEFAULT_SIZE;
   }
 
   /**

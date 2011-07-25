@@ -12,6 +12,7 @@ public class PongBall extends PongObject {
   private static final String TAG = "PongBall";
   
   private static final float SCALING_FACTOR = 0.3f;
+  private static final PointF DEFAULT_SIZE = new PointF(SCALING_FACTOR, SCALING_FACTOR);
   
   private Cube mCube;
   private PointF mVector;
@@ -24,6 +25,14 @@ public class PongBall extends PongObject {
     mLocation = location;
     mCube = new Cube();
     mVector = new PointF(0.0f, 0.0f);
+    mSize = DEFAULT_SIZE;
+  }
+
+  /**
+   * Default hit. Flips speed vector both ways.
+   */
+  public void hit() {
+    mVector.negate();
   }
 
   /**
